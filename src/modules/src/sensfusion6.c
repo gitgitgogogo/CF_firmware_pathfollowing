@@ -54,7 +54,12 @@ float q1 = 0.0f;
 float q2 = 0.0f;
 float q3 = 0.0f;  // quaternion of sensor frame relative to auxiliary frame
 
-static float gravX, gravY, gravZ; // Unit vector in the estimated gravity direction
+static float gravX, gravY, gravZ; // Unit vector in the estimated gravity direction in body frame
+
+//YHJ begin
+static float frontX, frontY, frontZ; // Unit vector in the estimated front direction in body frame
+static float leftX, leftY, leftZ; // Unit vector in the estimated left direction in body frame
+//YHJ end
 
 // The acc in Z for static position (g)
 // Set on first update, assuming we are in a static position since the sensors were just calibrates.
@@ -67,7 +72,18 @@ static bool isCalibrated = false;
 
 static void sensfusion6UpdateQImpl(float gx, float gy, float gz, float ax, float ay, float az, float dt);
 static float sensfusion6GetAccZ(const float ax, const float ay, const float az);
+
+//YHJ
+static float sensfusion6GetAccFront(const float ax, const float ay, const float az);
+static float sensfusion6GetAccLeft(const float ax, const float ay, const float az);
+//YHJ
+
 static void estimatedGravityDirection(float* gx, float* gy, float* gz);
+
+//YHJ begin
+static void estimatedFrontDirection(float* fx, float* fy, float* fz);
+static void estimatedLeftDirection(float* rx, float* ry, float* rz);
+//YHJ end
 
 // TODO: Make math util file
 static float invSqrt(float x);
@@ -89,6 +105,10 @@ void sensfusion6UpdateQ(float gx, float gy, float gz, float ax, float ay, float 
 {
   sensfusion6UpdateQImpl(gx, gy, gz, ax, ay, az, dt);
   estimatedGravityDirection(&gravX, &gravY, &gravZ);
+  //YHJ begin
+  estimatedFrontDirection(&frontX, &frontY, &frontZ);
+  estimatedLeftDirection(&leftX, &leftY, &leftZ);
+  //YHJ end
 
   if (!isCalibrated) {
     baseZacc = sensfusion6GetAccZ(ax, ay, az);
@@ -271,6 +291,17 @@ float sensfusion6GetAccZWithoutGravity(const float ax, const float ay, const flo
   return sensfusion6GetAccZ(ax, ay, az) - baseZacc;
 }
 
+//YHJ begin
+float sensfusion6GetAccX(const float ax, const float ay, const float az)
+{
+  return sensfusion6GetAccFront(ax, ay, az);
+}
+float sensfusion6GetAccY(const float ax, const float ay, const float az)
+{
+  return sensfusion6GetAccLeft(ax, ay, az);
+}
+//YHJ end
+
 float sensfusion6GetInvThrustCompensationForTilt()
 {
   // Return the z component of the estimated gravity direction
@@ -292,12 +323,45 @@ float invSqrt(float x)
   return y;
 }
 
+//YHJ begin
+static float sensfusion6GetAccFront(const float ax, const float ay, const float az)
+{
+  // return front acceleration
+  // (A dot F) / |F|,  (|F| = 1) -> (A dot F)
+  return (ax * frontX + ay * frontY + az * frontZ);
+}
+
+static float sensfusion6GetAccLeft(const float ax, const float ay, const float az)
+{
+  // return left acceleration
+  // (A dot L) / |L|,  (|L| = 1) -> (A dot L)
+  return (ax * leftX + ay * leftY + az * leftZ);
+}
+//YHJ end
+
+
 static float sensfusion6GetAccZ(const float ax, const float ay, const float az)
 {
   // return vertical acceleration
   // (A dot G) / |G|,  (|G| = 1) -> (A dot G)
   return (ax * gravX + ay * gravY + az * gravZ);
 }
+
+//YHJ begin
+static void estimatedFrontDirection(float* fx, float* fy, float* fz)
+{
+  *fx = (q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3);
+  *fy = 2.0f * (q1 * q2 - q0 * q3);
+  *fz = 2.0f * (q1 * q3 + q0 * q2);
+}
+
+static void estimatedLeftDirection(float* lx, float* ly, float* lz)  
+{
+  *lx = 2.0f * (q1 * q2 + q0 * q3);
+  *ly = (q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3);
+  *lz = 2.0f * (q2 * q3 - q0 * q1);
+}
+//YHJ end
 
 static void estimatedGravityDirection(float* gx, float* gy, float* gz)
 {

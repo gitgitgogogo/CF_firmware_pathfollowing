@@ -1,3 +1,4 @@
+
 /**
  *    ||          ____  _ __
  * +------+      / __ )(_) /_______________ _____  ___
@@ -29,6 +30,8 @@
 #include "stabilizer_types.h"
 
 void positionEstimate(state_t* estimate, float asl, float dt);
-void positionUpdateVelocity(float accWZ, float dt);
+void positionUpdateVelocity_X(float accWX, float dt); //YHJ Front Velocity
+void positionUpdateVelocity_Y(float accWY, float dt); //YHJ Side Velocity
+void positionUpdateVelocity(float accWZ, float dt); //Original: Vertical Velocity 
 
 #endif /* POSITION_ESTIMATOR_H_ */

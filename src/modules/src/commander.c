@@ -33,6 +33,7 @@
 #include "configblock.h"
 #include "param.h"
 #include "num.h"
+#include "log.h"
 
 #define MIN_THRUST  1000
 #define MAX_THRUST  60000
@@ -70,12 +71,14 @@ static bool isInit;
 static CommanderCache crtpCache;
 static CommanderCache extrxCache;
 static CommanderCache* activeCache;
+ 
 
 static uint32_t lastUpdate;
 static bool isInactive;
 static bool thrustLocked;
 static bool altHoldMode = false;
 static bool posHoldMode = false;
+
 
 static RPYType stabilizationModeRoll  = ANGLE; // Current stabilization type of roll (rate or angle)
 static RPYType stabilizationModePitch = ANGLE; // Current stabilization type of pitch (rate or angle)
@@ -287,70 +290,73 @@ uint32_t commanderGetInactivityTime(void)
 }
 
 void commanderGetSetpoint(setpoint_t *setpoint, const state_t *state)
-{
-  // Thrust
-  uint16_t rawThrust = commanderGetActiveThrust();
+{ 
+      // Thrust
+    uint16_t rawThrust = commanderGetActiveThrust();
 
-  if (thrustLocked || (rawThrust < MIN_THRUST)) {
-    setpoint->thrust = 0;
-  } else {
-    setpoint->thrust = min(rawThrust, MAX_THRUST);
-  }
-
-  if (altHoldMode) {
-    setpoint->thrust = 0;
-    setpoint->mode.z = modeVelocity;
-
-    setpoint->velocity.z = ((float) rawThrust - 32767.f) / 32767.f;
-  } else {
-    setpoint->mode.z = modeDisable;
-  }
-
-  // roll/pitch
-  if (posHoldMode) {
-    setpoint->mode.x = modeVelocity;
-    setpoint->mode.y = modeVelocity;
-    setpoint->mode.roll = modeDisable;
-    setpoint->mode.pitch = modeDisable;
-
-    setpoint->velocity.x = commanderGetActivePitch()/30.0f;
-    setpoint->velocity.y = commanderGetActiveRoll()/30.0f;
-    setpoint->attitude.roll  = 0;
-    setpoint->attitude.pitch = 0;
-  } else {
-    setpoint->mode.x = modeDisable;
-    setpoint->mode.y = modeDisable;
-
-    if (stabilizationModeRoll == RATE) {
-      setpoint->mode.roll = modeVelocity;
-      setpoint->attitudeRate.roll = commanderGetActiveRoll();
-      setpoint->attitude.roll = 0;
+    if (thrustLocked || (rawThrust < MIN_THRUST)) {
+      setpoint->thrust = 0;
     } else {
-      setpoint->mode.roll = modeAbs;
-      setpoint->attitudeRate.roll = 0;
-      setpoint->attitude.roll = commanderGetActiveRoll();
+      setpoint->thrust = min(rawThrust, MAX_THRUST);
     }
 
-    if (stabilizationModePitch == RATE) {
-      setpoint->mode.pitch = modeVelocity;
-      setpoint->attitudeRate.pitch = commanderGetActivePitch();
+    if (altHoldMode) {
+      setpoint->thrust = 0;
+      setpoint->mode.z = modeVelocity;
+
+      setpoint->velocity.z = ((float) rawThrust - 32767.f) / 32767.f;
+    } else {
+      setpoint->mode.z = modeDisable;
+    }
+
+    // roll/pitch
+    if (posHoldMode) {
+      setpoint->mode.x = modeVelocity;
+      setpoint->mode.y = modeVelocity;
+      setpoint->mode.roll = modeDisable;
+      setpoint->mode.pitch = modeDisable;
+
+      setpoint->velocity.x = commanderGetActivePitch()/30.0f;
+      setpoint->velocity.y = commanderGetActiveRoll()/30.0f;
+      setpoint->attitude.roll  = 0;
       setpoint->attitude.pitch = 0;
     } else {
-      setpoint->mode.pitch = modeAbs;
-      setpoint->attitudeRate.pitch = 0;
-      setpoint->attitude.pitch = commanderGetActivePitch();
-    }
+      setpoint->mode.x = modeDisable;
+      setpoint->mode.y = modeDisable;
 
-    setpoint->velocity.x = 0;
-    setpoint->velocity.y = 0;
-  }
+      if (stabilizationModeRoll == RATE) {
+        setpoint->mode.roll = modeVelocity;
+        setpoint->attitudeRate.roll = commanderGetActiveRoll();
+        setpoint->attitude.roll = 0;
+      } else {
+        setpoint->mode.roll = modeAbs;
+        setpoint->attitudeRate.roll = 0;
+        setpoint->attitude.roll = commanderGetActiveRoll();
+      }
 
-  // Yaw
-  setpoint->attitudeRate.yaw  = commanderGetActiveYaw();
-  yawModeUpdate(setpoint, state);
+      if (stabilizationModePitch == RATE) {
+        setpoint->mode.pitch = modeVelocity;
+        setpoint->attitudeRate.pitch = commanderGetActivePitch();
+        setpoint->attitude.pitch = 0;
+      } else {
+        setpoint->mode.pitch = modeAbs;
+        setpoint->attitudeRate.pitch = 0;
+        setpoint->attitude.pitch = commanderGetActivePitch();
+      }
 
-  setpoint->mode.yaw = modeVelocity;
+      setpoint->velocity.x = 0;
+      setpoint->velocity.y = 0;
+      }
+
+    // Yaw
+    setpoint->attitudeRate.yaw  = commanderGetActiveYaw();
+    yawModeUpdate(setpoint, state);
+
+    setpoint->mode.yaw = modeVelocity;
+  
 }
+
+
 
 // Params for flight modes
 PARAM_GROUP_START(flightmode)

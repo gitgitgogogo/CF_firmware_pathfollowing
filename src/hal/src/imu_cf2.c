@@ -51,6 +51,11 @@
 #define IMU_ENABLE_MAG_AK8963
 //#define IMU_MPU6500_DLPF_256HZ
 
+//YHJ
+//#define USE_MAG_CALIBRATION  <- magentometoer calibration parameter added. But not useful.
+//#define IMU_TAKE_ACCEL_BIAS
+//YHJ end
+
 #define IMU_GYRO_FS_CFG       MPU6500_GYRO_FS_2000
 #define IMU_DEG_PER_LSB_CFG   MPU6500_DEG_PER_LSB_2000
 #define IMU_ACCEL_FS_CFG      MPU6500_ACCEL_FS_8
@@ -78,7 +83,7 @@
 #define GYRO_VARIANCE_BASE        2000
 #define GYRO_VARIANCE_THRESHOLD_X (GYRO_VARIANCE_BASE)
 #define GYRO_VARIANCE_THRESHOLD_Y (GYRO_VARIANCE_BASE)
-#define GYRO_VARIANCE_THRESHOLD_Z (GYRO_VARIANCE_BASE)
+#define GYRO_VARIANCE_THRESHOLD_Z (GYRO_VARIANCE_BASE) 
 
 typedef struct
 {
@@ -107,6 +112,15 @@ static bool isBaroPresent;
 static bool isMpu6500TestPassed = true;
 static bool isAK8963TestPassed = true;
 static bool isLPS25HTestPassed = true;
+
+//YHJ begin
+static float Ax;  //Magnetometer scaling factors
+static float Ay;  //Magnetometer scaling factors
+static float Az;  //Magnetometer scaling factors
+static float bx;  //Magnetometer offset
+static float by;  //Magnetometer offset
+static float bz;  //Magnetometer offset
+//YHJ end
 
 // Pre-calculated values for accelerometer alignment
 float cosPitch;
@@ -390,9 +404,20 @@ void imu9Read(Axis3f* gyroOut, Axis3f* accOut, Axis3f* magOut)
   {
     ak8963GetHeading(&mag.x, &mag.y, &mag.z);
     ak8963GetOverflowStatus();
-    magOut->x = (float)mag.x / MAG_GAUSS_PER_LSB;
-    magOut->y = (float)mag.y / MAG_GAUSS_PER_LSB;
-    magOut->z = (float)mag.z / MAG_GAUSS_PER_LSB;
+    //YHJ begin
+    #ifdef USE_MAG_CALIBRATION
+      //magOut->x = Ax *( (float)mag.x / MAG_GAUSS_PER_LSB - bx );
+      //magOut->y = Ay *( (float)mag.y / MAG_GAUSS_PER_LSB - by );
+      //magOut->z = Az *( (float)mag.z / MAG_GAUSS_PER_LSB - bz );
+      magOut->x = 0.00424052f *( (float)mag.x - 825.07295359f );
+      magOut->y = 0.00424052f *( (float)mag.y - 1480.93019605f );
+      magOut->z = 0.00389982f *( (float)mag.z + 1332.64392983f );
+    #else 
+      magOut->x = (float)mag.x / MAG_GAUSS_PER_LSB;
+      magOut->y = (float)mag.y / MAG_GAUSS_PER_LSB;
+      magOut->z = (float)mag.z / MAG_GAUSS_PER_LSB;
+    #endif /* USE_MAG_CALIBRATION */
+    //YHJ end
   }
   else
   {
@@ -561,6 +586,17 @@ PARAM_GROUP_START(imu_sensors)
 PARAM_ADD(PARAM_UINT8 | PARAM_RONLY, HMC5883L, &isMagPresent)
 PARAM_ADD(PARAM_UINT8 | PARAM_RONLY, MS5611, &isBaroPresent) // TODO: Rename MS5611 to LPS25H. Client needs to be updated at the same time.
 PARAM_GROUP_STOP(imu_sensors)
+
+//YHJ begin
+PARAM_GROUP_START(mag_calibration)
+PARAM_ADD(PARAM_FLOAT, Ax, &Ax)
+PARAM_ADD(PARAM_FLOAT, Ay, &Ay)
+PARAM_ADD(PARAM_FLOAT, Az, &Az)
+PARAM_ADD(PARAM_FLOAT, bx, &bx)
+PARAM_ADD(PARAM_FLOAT, by, &by)
+PARAM_ADD(PARAM_FLOAT, bz, &bz)
+PARAM_GROUP_STOP(mag_calibration)
+//YHJ end
 
 PARAM_GROUP_START(imu_tests)
 PARAM_ADD(PARAM_UINT8 | PARAM_RONLY, MPU6500, &isMpu6500TestPassed)

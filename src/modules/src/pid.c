@@ -70,6 +70,8 @@ float pidUpdate(PidObject* pid, const float measured, const bool updateError)
 
     output = pid->outP + pid->outI + pid->outD;
 
+    pid->outTotal = output;
+
     pid->prevError = pid->error;
 
     return output;

@@ -42,6 +42,9 @@ typedef enum {
   CRTP_PORT_COMMANDER   = 0x03,
   CRTP_PORT_MEM         = 0x04,
   CRTP_PORT_LOG         = 0x05,
+  CRTP_PORT_VICON       = 0x06,  // YHJ This msg id need to be matched by the ROS package
+  CRTP_PORT_VICON_KF    = 0x07,  // YHJ This msg id need to be matched by the ROS package
+  CRTP_PROT_TRAJ_CMD    = 0x08,  // YHJ This msg id need to be matched by the ROS package
   CRTP_PORT_PLATFORM    = 0x0D,
   CRTP_PORT_LINK        = 0x0F,
 } CRTPPort;

@@ -29,6 +29,8 @@
 
 #include <stdbool.h>
 
+#define EXPERIMENTAL_ATTITUDE_PID
+
 #if defined(PLATFORM_CF2) && defined(EXPERIMENTAL_ATTITUDE_PID)
 
 #define PID_ROLL_RATE_KP  250.0
@@ -66,17 +68,17 @@
 
 #else
 
-#define PID_ROLL_RATE_KP  70.0
+#define PID_ROLL_RATE_KP  140.0
 #define PID_ROLL_RATE_KI  0.0
 #define PID_ROLL_RATE_KD  0.0
 #define PID_ROLL_RATE_INTEGRATION_LIMIT    33.3
 
-#define PID_PITCH_RATE_KP  70.0
+#define PID_PITCH_RATE_KP  140.0
 #define PID_PITCH_RATE_KI  0.0
 #define PID_PITCH_RATE_KD  0.0
 #define PID_PITCH_RATE_INTEGRATION_LIMIT   33.3
 
-#define PID_YAW_RATE_KP  70.0
+#define PID_YAW_RATE_KP  140.0
 #define PID_YAW_RATE_KI  16.7
 #define PID_YAW_RATE_KD  0.0
 #define PID_YAW_RATE_INTEGRATION_LIMIT     166.7
@@ -114,6 +116,7 @@ typedef struct
   float outP;         //< proportional output (debugging)
   float outI;         //< integral output (debugging)
   float outD;         //< derivative output (debugging)
+  float outTotal;       // YHJ for monitoring P+I+D
   float iLimit;       //< integral limit
   float iLimitLow;    //< integral limit
   float dt;           //< delta-time dt

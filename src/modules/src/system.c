@@ -51,6 +51,7 @@
 #include "comm.h"
 #include "stabilizer.h"
 #include "commander.h"
+#include "traj_commander.h" //YHJ
 #include "console.h"
 #include "usblink.h"
 #include "mem.h"
@@ -59,6 +60,8 @@
 #include "queuemonitor.h"
 #include "buzzer.h"
 #include "sound.h"
+#include "vicon_position.h"  //YHJ
+#include "vicon_positionKF.h" //YHJ 
 
 #ifdef PLATFORM_CF1
 #include "uart.h"
@@ -178,6 +181,9 @@ void systemTask(void *arg)
 
   commInit();
   commanderInit();
+  trajCommanderInit(); //YHJ
+  //viconPositionInit(); //YHJ
+  viconPositionKFInit(); //YHJ
   stabilizerInit();
 #ifdef PLATFORM_CF2
   deckInit();
@@ -194,6 +200,9 @@ void systemTask(void *arg)
   pass &= configblockTest();
   pass &= commTest();
   pass &= commanderTest();
+  pass &= trajCommanderTest(); //YHJ
+  //pass &= viconPositionTest(); //YHJ
+  pass &= viconPositionKFTest(); //YHJ
   pass &= stabilizerTest();
 #ifdef PLATFORM_CF2
   pass &= deckTest();

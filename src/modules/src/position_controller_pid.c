@@ -59,7 +59,7 @@ struct this_s {
 };
 
 // Maximum roll/pitch angle permited
-static float rpLimit = 5;
+static float rpLimit = 10;
 
 #define DT 0.01
 
@@ -68,29 +68,29 @@ static struct this_s this = {
 
   .pidX = {
     .init = {
-      .kp = 25,
-      .ki = 0.28,
-      .kd = 7
+      .kp = 10,
+      .ki = 0.05,
+      .kd = 5
     }
   },
 
   .pidY = {
     .init = {
-      .kp = 25,
-      .ki = 0.28,
-      .kd = 7
+      .kp = 10,
+      .ki = 0.05,
+      .kd = 5
     }
   },
 
   .pidZ = {
     .init = {
       .kp = 30000.0,
-      .ki = 0,
+      .ki = 100.0, // 0.0 <-orignal
       .kd = 10000.0
     }
   },
 
-  .thrustBase = 36000,
+  .thrustBase =50000,//36000, <-Original YHJ 
 };
 #endif
 
@@ -111,7 +111,8 @@ static float runPid(float input, struct pidAxis_s *axis, mode_t mode,
   if (mode == modeAbs) {
     axis->setpoint = setpointPos;
   } else if (mode == modeVelocity) {
-    axis->setpoint += setpointVel * dt;
+    //axis->setpoint = setpointVel; //YHJ
+    axis->setpoint += setpointVel * dt; //Original <- YHJ Commneted Out 
   }
 
   pidSetDesired(&axis->pid, axis->setpoint);
@@ -138,15 +139,25 @@ void positionController(float* thrust, attitude_t *attitude, const state_t *stat
 }
 
 
-LOG_GROUP_START(posCtlAlt)
+LOG_GROUP_START(posCtl)
 LOG_ADD(LOG_FLOAT, targetX, &this.pidX.setpoint)
 LOG_ADD(LOG_FLOAT, targetY, &this.pidY.setpoint)
 LOG_ADD(LOG_FLOAT, targetZ, &this.pidZ.setpoint)
+LOG_ADD(LOG_FLOAT, cntlX, &this.pidX.pid.outTotal)
+LOG_ADD(LOG_FLOAT, cntlY, &this.pidY.pid.outTotal)
+LOG_ADD(LOG_FLOAT, cntlZ, &this.pidZ.pid.outTotal)
+LOG_GROUP_STOP(posCtl)
 
-LOG_ADD(LOG_FLOAT, p, &this.pidZ.pid.outP)
-LOG_ADD(LOG_FLOAT, i, &this.pidZ.pid.outI)
-LOG_ADD(LOG_FLOAT, d, &this.pidZ.pid.outD)
-LOG_GROUP_STOP(posCtlAlt)
+LOG_GROUP_START(posCtl_Pid)
+LOG_ADD(LOG_FLOAT, x_I, &this.pidX.pid.outI)
+LOG_ADD(LOG_FLOAT, x_D, &this.pidX.pid.outD)
+LOG_ADD(LOG_FLOAT, y_I, &this.pidY.pid.outI)
+LOG_ADD(LOG_FLOAT, y_D, &this.pidY.pid.outD)
+LOG_ADD(LOG_FLOAT, z_I, &this.pidZ.pid.outI)
+LOG_ADD(LOG_FLOAT, z_D, &this.pidZ.pid.outD)
+LOG_GROUP_STOP(posCtl_Pid)
+
+
 
 PARAM_GROUP_START(posCtlPid)
 

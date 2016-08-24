@@ -9,10 +9,11 @@
 #include "log.h"
 #include "param.h"
 
+
 #define ATTITUDE_RATE RATE_500_HZ
 #define POSITION_RATE RATE_100_HZ
 
-static bool tiltCompensationEnabled = true;
+static bool tiltCompensationEnabled = false;
 
 static attitude_t attitudeDesired;
 static attitude_t rateDesired;
@@ -92,10 +93,10 @@ void stateController(control_t *control, const sensorData_t *sensors,
   }
   else
   {
-    control->thrust = actuatorThrust;
+    control->thrust = actuatorThrust;  //original
   }
 
-  if (control->thrust == 0)
+  if (control->thrust == 0 || control->thrust < 0)   // YHJ ==0 was the original
   {
     control->thrust = 0;
     control->roll = 0;
@@ -116,6 +117,13 @@ LOG_ADD(LOG_FLOAT, roll, &attitudeDesired.roll)
 LOG_ADD(LOG_FLOAT, pitch, &attitudeDesired.pitch)
 LOG_ADD(LOG_FLOAT, yaw, &attitudeDesired.yaw)
 LOG_GROUP_STOP(controller)
+
+LOG_GROUP_START(controller_rate)
+LOG_ADD(LOG_FLOAT, roll, &rateDesired.roll)
+LOG_ADD(LOG_FLOAT, pitch, &rateDesired.pitch)
+LOG_ADD(LOG_FLOAT, yaw, &rateDesired.yaw)
+LOG_GROUP_STOP(controller_rate)
+
 
 PARAM_GROUP_START(controller)
 PARAM_ADD(PARAM_UINT8, tiltComp, &tiltCompensationEnabled)

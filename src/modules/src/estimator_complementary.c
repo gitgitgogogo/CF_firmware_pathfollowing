@@ -34,10 +34,26 @@ void stateEstimator(state_t *state, const sensorData_t *sensorData, const uint32
     sensfusion6GetEulerRPY(&state->attitude.roll, &state->attitude.pitch, &state->attitude.yaw);
 
     state->acc.z = sensfusion6GetAccZWithoutGravity(sensorData->acc.x,
-                                                    sensorData->acc.y,
+                                                    sensorData->acc.y,//
                                                     sensorData->acc.z);
+    //YHJ begin
+    //They update accleration vector respect to the inertial frame, XYZ. 
+    state->acc.x = sensfusion6GetAccX(sensorData->acc.x,
+                                      sensorData->acc.y,
+                                      sensorData->acc.z);
+
+    state->acc.y = sensfusion6GetAccY(sensorData->acc.x,
+                                      sensorData->acc.y,
+                                      sensorData->acc.z);
+    //YHJ end
 
     positionUpdateVelocity(state->acc.z, ATTITUDE_UPDATE_DT);
+
+    //YHJ begin
+    positionUpdateVelocity_X(state->acc.x, ATTITUDE_UPDATE_DT);
+    positionUpdateVelocity_Y(state->acc.y, ATTITUDE_UPDATE_DT);
+    //YHJ end
+
   }
 
   if (RATE_DO_EXECUTE(POS_UPDATE_RATE, tick)) {
