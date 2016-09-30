@@ -50,7 +50,8 @@ or with the toolbelt
 tb build
 ```
 
-After you make the 'bin', you can download the file using "crazyflie client"
+After you make the 'bin', you can download the file using "crazyflie client".
+
 The Crazyflie PYthon client can be downloaded from the below.
 (https://www.bitcraze.io/download/)
 
