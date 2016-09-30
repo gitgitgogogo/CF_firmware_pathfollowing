@@ -1,20 +1,15 @@
-# Crazyflie 1.0/2.0 Firmware  [![Build Status](https://api.travis-ci.org/bitcraze/crazyflie-firmware.svg)](https://travis-ci.org/bitcraze/crazyflie-firmware)
+# Q2 v1.0 Firmware  
 
-This project contains the source code for the Crazyflie 1.0/2.0 firmware. 
+This project contains the source code for Q2 v1.0 firmware.
+(This firmware is modifed from a version of Crazyflie firmware) 
 
 ## Dependencies
 
-You'll need to use either the [Crazyflie VM](https://wiki.bitcraze.io/projects:virtualmachine:index),
-[the toolbelt](https://wiki.bitcraze.io/projects:dockerbuilderimage:index) or 
+To make BIN, you'll need to the  
 install some ARM toolchain.
 
 ### Install a toolchain
 
-#### OS X
-```bash
-brew tap PX4/homebrew-px4
-brew install gcc-arm-none-eabi
-```
 
 #### Debian/Ubuntu
 
@@ -26,22 +21,13 @@ sudo apt-get update
 sudo apt-get install libnewlib-arm-none-eabi
 ```
 
-#### Arch Linux
-
-```bash
-sudo pacman -S community/arm-none-eabi-gcc community/arm-none-eabi-gdb community/arm-none-eabi-newlib
-```
-
-#### Windows
-
-> `TODO: Please share!`
 
 ### Cloning
 
 This repository uses git submodules. Clone with the --recursive flag
 
 ```bash
-git clone --recursive https://github.com/bitcraze/crazyflie-firmware.git
+git clone --recursive https://github.com/HovakimyanResearch/CF_firmware_pathfollowing.git
 ```
 
 If you already have cloned the repo, use
@@ -53,21 +39,6 @@ git submodule update
 
 
 ## Compiling
-
-### Crazyflie 1.0
-
-Build with:
-```bash
-make PLATFORM=CF1
-```
-
-or with the toolbelt
-
-```bash
-tb build PLATFORM=CF1
-```
-
-### Crazyflie 2.0
 
 This is the dafault build so just running "make" is enough or:
 ```bash
