@@ -5,8 +5,7 @@ This project contains the source code for Q2 v1.0 firmware.
 
 ## Dependencies
 
-To make BIN, you'll need to the  
-install some ARM toolchain.
+To make BIN, you'll need to install some ARM toolchain.
 
 ### Install a toolchain
 
@@ -50,6 +49,10 @@ or with the toolbelt
 ```bash
 tb build
 ```
+
+After you make the 'bin', you can download the file using "crazyflie client"
+The Crazyflie PYthon client can be downloaded from the below.
+(https://www.bitcraze.io/download/)
 
 ### config.mk
 To create custom build options create a file called config.mk in the root folder 
