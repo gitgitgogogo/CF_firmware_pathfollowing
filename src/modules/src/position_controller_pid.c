@@ -59,7 +59,7 @@ struct this_s {
 };
 
 // Maximum roll/pitch angle permited
-static float rpLimit = 10;
+static float rpLimit = 15;
 
 #define DT 0.01
 
@@ -68,29 +68,29 @@ static struct this_s this = {
 
   .pidX = {
     .init = {
-      .kp = 10,
-      .ki = 0.05,
-      .kd = 5
+      .kp = 10.0, //25,
+      .ki =  0.2,  //0.28,
+      .kd = 10.0// 10.0 //7 
     }
   },
 
   .pidY = {
     .init = {
-      .kp = 10,
-      .ki = 0.05,
-      .kd = 5
+      .kp = 10.0, //25,
+      .ki = 0.2, //0.28,
+      .kd = 10.0 //10.0//7
     }
   },
 
   .pidZ = {
     .init = {
-      .kp = 30000.0,
-      .ki = 100.0, // 0.0 <-orignal
-      .kd = 10000.0
+      .kp = 10000.0, //20000.0,
+      .ki = 0.0,      // 3000.0,
+      .kd = 5000.0   //15000.0 // 15000.0
     }
   },
 
-  .thrustBase =50000,//36000, <-Original YHJ 
+  .thrustBase = 23000,  //45000,//36000, <-Original YHJ 
 };
 #endif
 
@@ -123,8 +123,13 @@ void positionController(float* thrust, attitude_t *attitude, const state_t *stat
                                                              const setpoint_t *setpoint)
 {
   // X, Y
-  float x = runPid(state->position.x, &this.pidX, setpoint->mode.x, setpoint->position.x, setpoint->velocity.x, DT);
-  float y = runPid(state->position.y, &this.pidY, setpoint->mode.y, setpoint->position.y, setpoint->velocity.y, DT);
+  /*
+  float x_cntl_deriv = (0.0 - state->velocity.x)*10.0;
+  float y_cntl_deriv = (0.0 - state->velocity.y)*10.0;
+  float z_cntl_deriv = (0.0 - state->velocity.z)*15000.0;
+  */
+  float x = runPid(state->position.x, &this.pidX, setpoint->mode.x, setpoint->position.x, setpoint->velocity.x, DT); //+ x_cntl_deriv;
+  float y = runPid(state->position.y, &this.pidY, setpoint->mode.y, setpoint->position.y, setpoint->velocity.y, DT); //+ y_cntl_deriv;
 
   float yawRad = state->attitude.yaw * (float)M_PI / 180;
   attitude->pitch = - (x * cosf(yawRad)) - (y * sinf(yawRad));
@@ -134,7 +139,7 @@ void positionController(float* thrust, attitude_t *attitude, const state_t *stat
   attitude->pitch = max(min(attitude->pitch, rpLimit), -rpLimit);
 
   // Z
-  float newThrust = runPid(state->position.z, &this.pidZ, setpoint->mode.z, setpoint->position.z, setpoint->velocity.z, DT);
+  float newThrust = runPid(state->position.z, &this.pidZ, setpoint->mode.z, setpoint->position.z, setpoint->velocity.z, DT); // + z_cntl_deriv;
   *thrust = newThrust + this.thrustBase;
 }
 
@@ -143,9 +148,9 @@ LOG_GROUP_START(posCtl)
 LOG_ADD(LOG_FLOAT, targetX, &this.pidX.setpoint)
 LOG_ADD(LOG_FLOAT, targetY, &this.pidY.setpoint)
 LOG_ADD(LOG_FLOAT, targetZ, &this.pidZ.setpoint)
-LOG_ADD(LOG_FLOAT, cntlX, &this.pidX.pid.outTotal)
-LOG_ADD(LOG_FLOAT, cntlY, &this.pidY.pid.outTotal)
-LOG_ADD(LOG_FLOAT, cntlZ, &this.pidZ.pid.outTotal)
+//LOG_ADD(LOG_FLOAT, cntlX, &this.pidX.pid.outTotal)
+//LOG_ADD(LOG_FLOAT, cntlY, &this.pidY.pid.outTotal)
+//LOG_ADD(LOG_FLOAT, cntlZ, &this.pidZ.pid.outTotal)
 LOG_GROUP_STOP(posCtl)
 
 LOG_GROUP_START(posCtl_Pid)

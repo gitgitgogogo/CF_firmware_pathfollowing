@@ -9,7 +9,6 @@
 #include "log.h"
 #include "param.h"
 
-
 #define ATTITUDE_RATE RATE_500_HZ
 #define POSITION_RATE RATE_100_HZ
 

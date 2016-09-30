@@ -36,6 +36,8 @@
 #include "extrx.h"
 #include "pm.h"
 
+#define ENABLE_BQ_DECK
+
 #define BIGQUAD_BAT_VOLT_PIN       DECK_GPIO_MISO
 #define BIGQUAD_BAT_VOLT_MULT      7.8f
 #define BIGQUAD_BAT_CURR_PIN       DECK_GPIO_SCK

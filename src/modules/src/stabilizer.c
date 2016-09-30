@@ -90,6 +90,7 @@ bool stabilizerTest(void)
  * functions to run slower by skipping call (ie. returning without modifying
  * the output structure).
  */
+
 static void stabilizerTask(void* param)
 {
   uint32_t tick = 0;
@@ -139,6 +140,12 @@ static void stabilizerTask(void* param)
   }
 }
 
+LOG_GROUP_START(ctrltarget)
+LOG_ADD(LOG_FLOAT, roll, &setpoint.attitude.roll)
+LOG_ADD(LOG_FLOAT, pitch, &setpoint.attitude.pitch)
+LOG_ADD(LOG_FLOAT, yaw, &setpoint.attitudeRate.yaw)
+LOG_GROUP_STOP(ctrltarget)
+
 LOG_GROUP_START(setpointmode)
 LOG_ADD(LOG_UINT8, mode_roll, &setpoint.mode.roll)
 LOG_ADD(LOG_UINT8, mode_pitch, &setpoint.mode.pitch)
@@ -184,6 +191,7 @@ LOG_GROUP_START(stabilizer)
 LOG_ADD(LOG_FLOAT, roll, &state.attitude.roll)
 LOG_ADD(LOG_FLOAT, pitch, &state.attitude.pitch)
 LOG_ADD(LOG_FLOAT, yaw, &state.attitude.yaw)
+LOG_ADD(LOG_UINT16, thrust, &control.thrust)
 LOG_GROUP_STOP(stabilizer)
 
 /*
@@ -218,6 +226,9 @@ LOG_ADD(LOG_FLOAT, y, &sensorData.mag.y)
 LOG_ADD(LOG_FLOAT, z, &sensorData.mag.z)
 LOG_GROUP_STOP(mag)
 
+LOG_GROUP_START(controller)
+LOG_ADD(LOG_INT16, ctr_yaw, &control.yaw)
+LOG_GROUP_STOP(controller)
 
 LOG_GROUP_START(motor_cmd)
 LOG_ADD(LOG_INT16, roll, &control.roll)

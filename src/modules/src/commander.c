@@ -71,7 +71,6 @@ static bool isInit;
 static CommanderCache crtpCache;
 static CommanderCache extrxCache;
 static CommanderCache* activeCache;
- 
 
 static uint32_t lastUpdate;
 static bool isInactive;
