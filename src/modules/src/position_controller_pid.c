@@ -70,7 +70,7 @@ static struct this_s this = {
     .init = {
       .kp = 15.0, //25,
       .ki =  0.2,  //0.28,
-      .kd = 10.0// 10.0 //7 
+      .kd = 10.0// 10.0 //7
     }
   },
 
@@ -84,13 +84,13 @@ static struct this_s this = {
 
   .pidZ = {
     .init = {
-      .kp = 10000.0, //20000.0,
-      .ki = 50.0,      // 3000.0,
-      .kd = 5000.0   //15000.0 // 15000.0
+      .kp = 12000.0, //20000.0,
+      .ki = 1500.0,      // 3000.0,
+      .kd = 6000.0   //15000.0 // 15000.0
     }
   },
 
-  .thrustBase = 23000,  //45000,//36000, <-Original YHJ 
+  .thrustBase = 30000,  //45000,//36000, <-Original YHJ
 };
 #endif
 
@@ -112,7 +112,7 @@ static float runPid(float input, struct pidAxis_s *axis, mode_t mode,
     axis->setpoint = setpointPos;
   } else if (mode == modeVelocity) {
     //axis->setpoint = setpointVel; //YHJ
-    axis->setpoint += setpointVel * dt; //Original <- YHJ Commneted Out 
+    axis->setpoint += setpointVel * dt; //Original <- YHJ Commneted Out
   }
 
   pidSetDesired(&axis->pid, axis->setpoint);
